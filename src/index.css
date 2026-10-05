@@ -1,0 +1,48 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Kreon", serif;
+}
+
+/* --- DARK MODE (default) --- */
+:root {
+  --background: #03131a;
+
+  --background-box: #435d6c;
+
+  --text-title: #45d0ed;
+
+  --text: #e0f2fe;
+
+  --border: #1c495b;
+
+  --border-box: #008ebf;
+}
+
+/* --- LIGHT MODE --- */
+[data-theme="light"] {
+  --background: #afdbe7;
+
+  --background-box: #52c0d1;
+
+  --text-title: #005878;
+
+  --text: #0f2d37;
+
+  --border: #4d97b2;
+
+  --border-box: #007ea7;
+}
+
+#root {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+}
+
+html {
+  min-width: max-content;
+  background: linear-gradient(135deg, var(--background), var(--background-box));
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
