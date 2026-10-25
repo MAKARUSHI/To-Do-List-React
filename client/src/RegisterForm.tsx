@@ -1,11 +1,26 @@
 import { useState } from "react"
+import { registerUser } from './api';
 
 // props define data type of passed variables
-type RegisterGormProps = {
+type RegisterFormProps = {
     oClickToLogin: () => void;
+    onRegisterSuccess: (user: any) => void;
 }
 
-export function RegisterForm({ oClickToLogin } : RegisterGormProps) {
+export function RegisterForm({ oClickToLogin, onRegisterSuccess } : RegisterFormProps) {
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
+    const [username, setUsername] = useState("");
+    const [email, setEmail] = useState("");
+    const [birthDay, setBirthDay] = useState("01");
+    const [birthMonth, setBirthMonth] = useState("01");
+    const [birthYear, setBirthYear] = useState("2026");
+    const [gender, setGender] = useState("");
+    const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [error, setError] = useState<string | null>(null);
+    const [successMsg, setSuccessMsg] = useState<string | null>(null);
+
     // For knowing which box of register to display
     const [visibleBoxIndex, setVisibleBoxIndex] = useState(0);
 
@@ -17,8 +32,26 @@ export function RegisterForm({ oClickToLogin } : RegisterGormProps) {
         setVisibleBoxIndex((prev) => prev - 1);
     }
 
+    const formattedBirthday = `${birthYear}-${birthMonth.padStart(2, '0')}-${birthDay.padStart(2, '0')}`;
+
+    const handleSubmit = async (e: React.SubmitEvent) => {
+        e.preventDefault();
+
+        console.log(firstName, lastName, username, email, formattedBirthday, gender, password, confirmPassword);
+
+        try {
+            const result = await registerUser({ firstName, lastName, username, email, formattedBirthday, gender, password, confirmPassword });
+            setSuccessMsg("Welcome, {result.user.username}! Registration successful.");
+            onRegisterSuccess(result.user);
+            console.log(successMsg);
+        } catch (err: any) {
+            setError(err.message);
+            console.log(error);
+        }
+    };
+
     return (
-        <form className="credentials-form">
+        <form onSubmit={handleSubmit} className="credentials-form">
             <h1 className="credentials-form-title">User Register</h1>
 
             {
@@ -26,28 +59,41 @@ export function RegisterForm({ oClickToLogin } : RegisterGormProps) {
             }
             {visibleBoxIndex === 0 && (
             <div className="register-box">
-                <input type="text" className="credentials-input" placeholder="First Name"/>
+                <input type="text" 
+                className="credentials-input" 
+                placeholder="First Name" 
+                onChange={(e) => setFirstName(e.target.value)}/>
 
-                <input type="text" className="credentials-input" placeholder="Last Name"/>
+                <input type="text" 
+                className="credentials-input" 
+                placeholder="Last Name" 
+                onChange={(e) => setLastName(e.target.value)}/>
                 
-                <input type="text" className="credentials-input" placeholder="Username"/>
+                <input type="text" 
+                className="credentials-input" 
+                placeholder="Username" 
+                onChange={(e) => setUsername(e.target.value)}/>
 
                 <hr className="form-divide-line"/>
                 <div className="credentials-button-box">
-                    <button type="submit" className="credentials-submit" onClick={showNextBox}>Next</button>
+                    <button type="button" className="credentials-submit" onClick={showNextBox}>Next</button>
                 </div>
             </div>
             )}
             {visibleBoxIndex === 1 && (
             <div className="register-box">
 
-                <input type="email" className="credentials-input" placeholder="Email"/>
-                
+                <input type="email" 
+                className="credentials-input" 
+                placeholder="Email"
+                onChange={(e) => setEmail(e.target.value)}/>
                 
                 <div>
                     <label className="credentials-label">Birthday</label>
                     <div className="credentials-input-date-box">
-                        <select className="credentials-input" name="birthday-day">
+                        <select className="credentials-input" 
+                        name="birthday-day"
+                        onChange={(e) => setBirthDay(e.target.value)}>
                             <option value="1">1</option>
                             <option value="2">2</option>
                             <option value="3">3</option>
@@ -81,7 +127,9 @@ export function RegisterForm({ oClickToLogin } : RegisterGormProps) {
                             <option value="31">31</option>
                         </select>
 
-                        <select className="credentials-input" name="birthday-month">
+                        <select className="credentials-input" 
+                        name="birthday-month"
+                        onChange={(e) => setBirthMonth(e.target.value)}>
                             <option value="1">1</option>
                             <option value="2">2</option>
                             <option value="3">3</option>
@@ -96,7 +144,9 @@ export function RegisterForm({ oClickToLogin } : RegisterGormProps) {
                             <option value="12">12</option>
                         </select>
 
-                        <select className="credentials-input" name="birthday-year">
+                        <select className="credentials-input" 
+                        name="birthday-year"
+                        onChange={(e) => setBirthYear(e.target.value)}>
                             <option value="2026">2026</option>
                             <option value="2025">2025</option>
                             <option value="2024">2024</option>
@@ -232,11 +282,35 @@ export function RegisterForm({ oClickToLogin } : RegisterGormProps) {
                 <div>
                     <label className="credentials-label">Gender</label>
                     <div className="credentials-input-gender-box">
-                        <label className="credentials-input-gender" htmlFor="gender-input-man"><input type="radio" name="gender" id="gender-input-man" className=""/>Man</label>
+                        <label className="credentials-input-gender" 
+                        htmlFor="gender-input-man">
+                            <input type="radio" 
+                            name="gender" 
+                            value="m" 
+                            id="gender-input-man"
+                            onChange={(e) => setGender(e.target.value)}/>
+                            Man
+                        </label>
 
-                        <label className="credentials-input-gender" htmlFor="gender-input-woman"><input type="radio" name="gender" id="gender-input-woman" className=""/>Woman</label>
+                        <label className="credentials-input-gender" 
+                        htmlFor="gender-input-woman">
+                            <input type="radio"
+                            name="gender"
+                            value="w" 
+                            id="gender-input-woman" 
+                            onChange={(e) => setGender(e.target.value)}/>
+                            Woman
+                        </label>
 
-                        <label className="credentials-input-gender" htmlFor="gender-input-other"><input type="radio" name="gender" id="gender-input-other" className=""/>Other</label>
+                        <label className="credentials-input-gender" 
+                        htmlFor="gender-input-other">
+                            <input type="radio" 
+                            name="gender"
+                            value="o"
+                            id="gender-input-other" 
+                            onChange={(e) => setGender(e.target.value)}/>
+                            Other
+                        </label>
                     </div>
 
                 </div>
@@ -244,8 +318,8 @@ export function RegisterForm({ oClickToLogin } : RegisterGormProps) {
                 <hr className="form-divide-line"/>
 
                 <div className="credentials-button-box">
-                    <button type="submit" className="credentials-submit" onClick={showPreviousBox}>Back</button>
-                    <button type="submit" className="credentials-submit" onClick={showNextBox}>Next</button>
+                    <button type="button" className="credentials-submit" onClick={showPreviousBox}>Back</button>
+                    <button type="button" className="credentials-submit" onClick={showNextBox}>Next</button>
                 </div>
             </div>
             )}
@@ -253,14 +327,20 @@ export function RegisterForm({ oClickToLogin } : RegisterGormProps) {
             {visibleBoxIndex === 2 && (
             <div className="register-box">
 
-                <input type="password" className="credentials-input" placeholder="Password"/>
+                <input type="password" 
+                className="credentials-input" 
+                placeholder="Password"
+                onChange={(e) => setPassword(e.target.value)}/>
 
-                <input type="password" className="credentials-input" placeholder="Confirm Password"/>
+                <input type="password" 
+                className="credentials-input" 
+                placeholder="Confirm Password"
+                onChange={(e) => setConfirmPassword(e.target.value)}/>
                 
                 <hr className="form-divide-line"/>
 
                 <div className="credentials-button-box">
-                    <button type="submit" className="credentials-submit" onClick={showPreviousBox}>Back</button>
+                    <button type="button" className="credentials-submit" onClick={showPreviousBox}>Back</button>
                     <button type="submit" className="credentials-submit">Register</button>
                 </div>
                 
