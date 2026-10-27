@@ -10,6 +10,7 @@ export interface RegisterCredentials {
 }
 
 export interface RegisterCredentialsResponse {
+    status: boolean;
     message: string;
     error: string;
     user: {
@@ -25,6 +26,7 @@ export interface LoginCredentials {
 }
 
 export interface LoginCredentialsResponse {
+    status: boolean;
     message: string;
     error: string;
     user: {

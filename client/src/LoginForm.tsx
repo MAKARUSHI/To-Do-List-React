@@ -1,37 +1,54 @@
 // props define data type of passed variables
 import { useState } from "react"
-import { loginUser } from './api';
+import { loginUser } from './Api';
+import { Alert } from "./Alert";
 
 type LoginGormProps = {
-    oClickToRegister: () => void;
+    onClickToRegister: () => void;
     onLoginSuccess: (user: any) => void;
+    setShowAlert: (showAlert: boolean) => void;
+    onAlertClose: () => void;
+    showAlert: boolean;
 }
 
-export function LoginForm({ oClickToRegister, onLoginSuccess }: LoginGormProps) {
+export function LoginForm({ onClickToRegister, onLoginSuccess, setShowAlert, onAlertClose, showAlert }: LoginGormProps) {
 
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    
+
+    const [error, setError] = useState<string | null>(null);
 
     const handleSubmit = async (e: React.SubmitEvent) => {
         e.preventDefault();
 
-        try {
-            const result = await loginUser({ username, password });
-            onLoginSuccess(result.user);  
-        } catch (err: any) {
-            console.log(err.message);
+        if (!username.trim() || !password) {
+            setError("Fill in all required fields");
+            setShowAlert(true);   
+        } else {
+            try {
+                const result = await loginUser({ username, password });
+                if (!result.status) {
+                    setError(result.error);
+                    setShowAlert(true); 
+                } else {
+                    setShowAlert(false);
+                    setError(null);
+                    onLoginSuccess(result.user);  
+                }
+            } catch (err: any) {
+                console.log(err.message);
+            }
         }
-        
     }
     
     return (
-        <form onSubmit={handleSubmit} className="credentials-form">
+        <form onSubmit={handleSubmit} className="credentials-form" noValidate>
             <h1 className="credentials-form-title">User Login</h1>
+            <Alert message={error} isOpen={showAlert} onClose={onAlertClose}/>
 
-            <input type="text" name="username" className="credentials-input" placeholder="Username" onChange={(e) => setUsername(e.target.value)}/>
+            <input type="text" name="username" className="credentials-input" placeholder="Username *" required onChange={(e) => setUsername(e.target.value)}/>
 
-            <input type="password" name="password" className="credentials-input" placeholder="Password" onChange={(e) => setPassword(e.target.value)}/>
+            <input type="password" name="password" className="credentials-input" placeholder="Password *" required onChange={(e) => setPassword(e.target.value)}/>
 
             <hr className="form-divide-line"/>
 
@@ -39,7 +56,11 @@ export function LoginForm({ oClickToRegister, onLoginSuccess }: LoginGormProps) 
                 <button type="submit" className="credentials-submit">Log In</button>
             </div>
             
-            <button onClick={oClickToRegister} className="credentials-switch-form">Click to create an account</button>
+            <button onClick={() => {
+                    setShowAlert(false);
+                    setError(null);
+                    onClickToRegister();
+                }} className="credentials-switch-form">Click to create an account</button>
         </form>
     )
 }

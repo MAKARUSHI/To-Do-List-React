@@ -50,6 +50,38 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     try {
+        // Check if username or email are available (never used)
+        $stmt = $pdo->prepare("SELECT username, email FROM users WHERE username = ? OR email = ?");
+        // execute query with parameters
+        $stmt->execute([$username, $email]);
+        $user = $stmt->fetchAll();
+
+        if (!empty($user)) {
+            $usernameExisting = null;
+            $emailExisting = null;
+            foreach ($user as $row) {
+                if ($row["username"] === $username) {
+                    $usernameExisting = true;
+                }
+                if ($row["email"] === $email) {
+                    $emailExisting = true;
+                }
+            }
+
+            http_response_code(409);
+            if ($usernameExisting && $emailExisting) {
+                echo json_encode(["status" => false, "error" => "Email and username not available"]);
+                exit;
+            } else if ($usernameExisting) {
+                echo json_encode(["status" => false, "error" => "Username is not available"]);
+                exit;
+            } else if ($emailExisting) {
+                echo json_encode(["status" => false, "error" => "Email is not available"]);
+                exit;
+            }
+            
+        }
+        
         // hash registered password
         $passwordHash = password_hash($password, PASSWORD_BCRYPT);
 
@@ -60,20 +92,27 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $stmt->execute([$email, $firstName, $lastName, $birthDay, $username, $passwordHash, $gender]);
         $user = $stmt->fetch();
 
-        http_response_code(201);
-        echo json_encode(["message" => "User registered successfully", "user" => $user]);
-    } catch (\PDOException $e) {
-        http_response_code(500);
-        // SQL error code for already existing unique stored value
-        if ($e->getCode() === "23505") {
-            http_response_code(409);
-            echo json_encode(["error" => "Email or username already exists"]);
-        } else {
-            echo json_encode(["error" => $e->getMessage()]);
+        if (!$user) {
+            http_response_code(500);
+            echo json_encode(["status" => false, "message" => "User registration failed"]);
+            exit;    
         }
+
+        http_response_code(201);
+        echo json_encode(["status" => true, "message" => "User registered successfully", "user" => $user]);
+        exit;
+    } catch (\PDOException $e) {
+        if (!$usernameExisting && !$emailExisting) {
+            http_response_code(500);
+            echo json_encode(["status" => false, "error" => $e->getMessage()]);
+            exit;
+        }
+        
+        
     }
 } else {
     http_response_code(405);
     echo json_encode(["error" => "Method not allowed"]);
+    exit;
 }
 ?>

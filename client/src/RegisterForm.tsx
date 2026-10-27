@@ -1,13 +1,17 @@
 import { useState } from "react"
-import { registerUser } from './api';
+import { registerUser } from "./Api";
+import { Alert } from "./Alert";
 
 // props define data type of passed variables
 type RegisterFormProps = {
-    oClickToLogin: () => void;
+    onClickToLogin: () => void;
     onRegisterSuccess: (user: any) => void;
+    setShowAlert: (showAlert: boolean) => void;
+    onAlertClose: () => void;
+    showAlert: boolean;
 }
 
-export function RegisterForm({ oClickToLogin, onRegisterSuccess } : RegisterFormProps) {
+export function RegisterForm({ onClickToLogin, onRegisterSuccess, setShowAlert, onAlertClose, showAlert } : RegisterFormProps) {
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [username, setUsername] = useState("");
@@ -19,7 +23,7 @@ export function RegisterForm({ oClickToLogin, onRegisterSuccess } : RegisterForm
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [error, setError] = useState<string | null>(null);
-    const [successMsg, setSuccessMsg] = useState<string | null>(null);
+ 
 
     // For knowing which box of register to display
     const [visibleBoxIndex, setVisibleBoxIndex] = useState(0);
@@ -37,22 +41,33 @@ export function RegisterForm({ oClickToLogin, onRegisterSuccess } : RegisterForm
     const handleSubmit = async (e: React.SubmitEvent) => {
         e.preventDefault();
 
-        console.log(firstName, lastName, username, email, formattedBirthday, gender, password, confirmPassword);
+        if (!firstName.trim() || !lastName.trim() || !username.trim() || !email.trim() || !gender || !password || !confirmPassword) {
+            setError("Please fill in all required fields");
+            setShowAlert(true);
+        } else {
+            try {
+                const result = await registerUser({ firstName, lastName, username, email, formattedBirthday, gender, password, confirmPassword });
+                if (!result.status) {
+                    setError(result.error);
+                    setShowAlert(true);
+                } else {
+                    setError(null);
+                    setShowAlert(false);
+                    onRegisterSuccess(result.user);
+                }
 
-        try {
-            const result = await registerUser({ firstName, lastName, username, email, formattedBirthday, gender, password, confirmPassword });
-            setSuccessMsg("Welcome, {result.user.username}! Registration successful.");
-            onRegisterSuccess(result.user);
-            console.log(successMsg);
-        } catch (err: any) {
-            setError(err.message);
-            console.log(error);
+            } catch (err: any) {
+                console.log(error);
+            }
         }
     };
 
+    
+
     return (
-        <form onSubmit={handleSubmit} className="credentials-form">
+        <form onSubmit={handleSubmit} className="credentials-form" noValidate>
             <h1 className="credentials-form-title">User Register</h1>
+            <Alert message={error} isOpen={showAlert} onClose={onAlertClose}/>
 
             {
             // if true it shows first box
@@ -61,17 +76,23 @@ export function RegisterForm({ oClickToLogin, onRegisterSuccess } : RegisterForm
             <div className="register-box">
                 <input type="text" 
                 className="credentials-input" 
-                placeholder="First Name" 
+                placeholder="First Name *"
+                required
+                value={firstName} 
                 onChange={(e) => setFirstName(e.target.value)}/>
 
                 <input type="text" 
                 className="credentials-input" 
-                placeholder="Last Name" 
+                placeholder="Last Name *"
+                required
+                value={lastName} 
                 onChange={(e) => setLastName(e.target.value)}/>
                 
                 <input type="text" 
                 className="credentials-input" 
-                placeholder="Username" 
+                placeholder="Username *"
+                required 
+                value={username} 
                 onChange={(e) => setUsername(e.target.value)}/>
 
                 <hr className="form-divide-line"/>
@@ -85,7 +106,9 @@ export function RegisterForm({ oClickToLogin, onRegisterSuccess } : RegisterForm
 
                 <input type="email" 
                 className="credentials-input" 
-                placeholder="Email"
+                placeholder="Email *"
+                required
+                value={email}
                 onChange={(e) => setEmail(e.target.value)}/>
                 
                 <div>
@@ -93,6 +116,7 @@ export function RegisterForm({ oClickToLogin, onRegisterSuccess } : RegisterForm
                     <div className="credentials-input-date-box">
                         <select className="credentials-input" 
                         name="birthday-day"
+                        value={birthDay}
                         onChange={(e) => setBirthDay(e.target.value)}>
                             <option value="1">1</option>
                             <option value="2">2</option>
@@ -129,6 +153,7 @@ export function RegisterForm({ oClickToLogin, onRegisterSuccess } : RegisterForm
 
                         <select className="credentials-input" 
                         name="birthday-month"
+                        value={birthMonth}
                         onChange={(e) => setBirthMonth(e.target.value)}>
                             <option value="1">1</option>
                             <option value="2">2</option>
@@ -146,6 +171,7 @@ export function RegisterForm({ oClickToLogin, onRegisterSuccess } : RegisterForm
 
                         <select className="credentials-input" 
                         name="birthday-year"
+                        value={birthYear}
                         onChange={(e) => setBirthYear(e.target.value)}>
                             <option value="2026">2026</option>
                             <option value="2025">2025</option>
@@ -276,8 +302,6 @@ export function RegisterForm({ oClickToLogin, onRegisterSuccess } : RegisterForm
                         </select>
                     </div>
                 </div>
-
-
                 
                 <div>
                     <label className="credentials-label">Gender</label>
@@ -286,7 +310,9 @@ export function RegisterForm({ oClickToLogin, onRegisterSuccess } : RegisterForm
                         htmlFor="gender-input-man">
                             <input type="radio" 
                             name="gender" 
-                            value="m" 
+                            value="m"
+                            required
+                            checked={gender === "m"}
                             id="gender-input-man"
                             onChange={(e) => setGender(e.target.value)}/>
                             Man
@@ -296,7 +322,9 @@ export function RegisterForm({ oClickToLogin, onRegisterSuccess } : RegisterForm
                         htmlFor="gender-input-woman">
                             <input type="radio"
                             name="gender"
-                            value="w" 
+                            value="w"
+                            required 
+                            checked={gender === "w"}
                             id="gender-input-woman" 
                             onChange={(e) => setGender(e.target.value)}/>
                             Woman
@@ -307,6 +335,8 @@ export function RegisterForm({ oClickToLogin, onRegisterSuccess } : RegisterForm
                             <input type="radio" 
                             name="gender"
                             value="o"
+                            required
+                            checked={gender === "o"}
                             id="gender-input-other" 
                             onChange={(e) => setGender(e.target.value)}/>
                             Other
@@ -329,12 +359,16 @@ export function RegisterForm({ oClickToLogin, onRegisterSuccess } : RegisterForm
 
                 <input type="password" 
                 className="credentials-input" 
-                placeholder="Password"
+                placeholder="Password *"
+                required
+                value={password}
                 onChange={(e) => setPassword(e.target.value)}/>
 
                 <input type="password" 
                 className="credentials-input" 
-                placeholder="Confirm Password"
+                placeholder="Confirm Password *"
+                required
+                value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}/>
                 
                 <hr className="form-divide-line"/>
@@ -347,7 +381,11 @@ export function RegisterForm({ oClickToLogin, onRegisterSuccess } : RegisterForm
             </div>
             )}
 
-            <button onClick={oClickToLogin} className="credentials-switch-form">Have an account, click</button>
+            <button onClick={() => {
+                    setShowAlert(false);
+                    setError(null);
+                    onClickToLogin();
+                }} className="credentials-switch-form">Have an account, click</button>
         </form>
     )
 }

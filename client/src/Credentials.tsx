@@ -13,6 +13,14 @@ type CredentialsProps = {
 export function Credentials({ onRegisterSuccess, onLoginSuccess }:CredentialsProps) {
     // for knowing which to display (login or register)
     const [isLoginVisible, setLoginVisible] = useState(true);
+
+    // dispalying pop-up message
+    const [showAlert, setShowAlert] = useState(false);
+
+    const onAlertClose = () => {
+        setShowAlert(false);
+    }
+
     return (
         <div>
             <ThemeToggle/>
@@ -22,9 +30,9 @@ export function Credentials({ onRegisterSuccess, onLoginSuccess }:CredentialsPro
                 <hr className="credentials-vertical-line"/>
                 
                 {isLoginVisible ? (
-                    <LoginForm oClickToRegister={() => setLoginVisible(false)} onLoginSuccess={onLoginSuccess}/>
+                    <LoginForm onClickToRegister={() => setLoginVisible(false)} onLoginSuccess={onLoginSuccess} setShowAlert={setShowAlert} onAlertClose={onAlertClose} showAlert={showAlert}/>
                 ) : 
-                (<RegisterForm oClickToLogin={() => setLoginVisible(true)} onRegisterSuccess={onRegisterSuccess}/>
+                (<RegisterForm onClickToLogin={() => setLoginVisible(true)} onRegisterSuccess={onRegisterSuccess} setShowAlert={setShowAlert} onAlertClose={onAlertClose} showAlert={showAlert}/>
                 )}
                 
             </div>

@@ -1,0 +1,32 @@
+.alert-main {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: auto;
+    height: 27px;
+    padding: 25px 10px;
+    border: 2px solid var(--border-box);
+    border-radius: 10px;
+    background-color: transparent;
+    margin-bottom: 10px;
+}
+
+.alert-message {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--red-text);
+}
+
+.alert-button {
+    margin-left: 10px;
+    font-size: 16px;
+    background-color: var(--background-box);
+    color: var(--text);
+    border: 2px solid var(--border-box);
+    padding: 6px;
+    border-radius: 10px;
+}
+
+.alert-button:hover {
+    transform: scale(1.05);
+}

@@ -51,9 +51,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $user = $stmt->fetch();
 
         // compare user password
-        if ($user === false|| !password_verify($password, $user["password"])) {
+        if ($user === false || !password_verify($password, $user["password"])) {
             http_response_code(401);
-            echo json_encode(["error" => "Invalid username or password"]);  
+            echo json_encode(["status" => false, "error" => "Invalid username or password"]);  
             exit;  
         }
 
@@ -61,13 +61,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         unset($user["password"]);
 
         http_response_code(200);
-        echo json_encode(["message" => "User found", "user" => $user]);
+        echo json_encode(["status" => true, "message" => "User found", "user" => $user]);
     } catch (\PDOException $e) {
         http_response_code(500);
         echo json_encode(["error" => $e->getMessage()]);
+        exit;
     }
 } else {
     http_response_code(405);
     echo json_encode(["error" => "Method not allowed"]);
+    exit;
 }
 ?>

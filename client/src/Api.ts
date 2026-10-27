@@ -1,4 +1,4 @@
-import type { RegisterCredentials, RegisterCredentialsResponse, LoginCredentials, LoginCredentialsResponse } from './types';
+import type { RegisterCredentials, RegisterCredentialsResponse, LoginCredentials, LoginCredentialsResponse } from './Types';
 
 const API_BASE_URL = 'http://webtrac.duckdns.org';
 
@@ -9,7 +9,6 @@ export async function registerUser(credentials: RegisterCredentials): Promise<Re
         body: JSON.stringify(credentials),
     });
     const data = await response.json();
-    if (!response.ok) throw new Error(data.error || 'Registration failed');
     return data;
 }
 
@@ -20,6 +19,5 @@ export async function loginUser(credentials: LoginCredentials): Promise<LoginCre
         body: JSON.stringify(credentials),
     });
     const data = await response.json();
-    if (!response.ok) throw new Error(data.error || 'Log In failed');
     return data;
 }
