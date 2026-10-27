@@ -1,9 +1,26 @@
 import "./App.css"
 import { Credentials } from "./Credentials"
 import { Dashboard } from "./Dashboard";
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 function App() {
+
+  const [theme, setTheme] = useState<string>(() => {
+      const savedTheme = localStorage.getItem("theme");
+      if (!savedTheme) {
+          console.log("theme to dark");
+          localStorage.setItem("theme", "dark");
+          return "dark"
+      }
+
+      return savedTheme;
+  });
+  
+  // If theme changes updates storage
+  useEffect(() => {
+        document.documentElement.setAttribute("data-theme", theme);
+        localStorage.setItem("theme", theme);
+    }, [theme]);
 
   const [user, setUser] = useState<any>(() => {
     const savedUser = localStorage.getItem("user");
@@ -26,7 +43,7 @@ function App() {
         <Dashboard user={user} onUserLogout={onUserLogout}/>
       ) : (
         <Credentials onRegisterSuccess={(loggedInUser) => setUser(loggedInUser)} 
-        onLoginSuccess={onLoginSuccess}/>
+        onLoginSuccess={onLoginSuccess} setTheme={setTheme} theme={theme}/>
       )}
       
     </div>

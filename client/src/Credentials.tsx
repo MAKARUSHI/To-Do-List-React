@@ -8,9 +8,11 @@ import { useState } from 'react';
 type CredentialsProps = {
     onRegisterSuccess: (user: any) => void;
     onLoginSuccess: (user: any) => void;
+    setTheme: (theme: string) => void;
+    theme: string;
 }
 
-export function Credentials({ onRegisterSuccess, onLoginSuccess }:CredentialsProps) {
+export function Credentials({ onRegisterSuccess, onLoginSuccess, setTheme, theme }:CredentialsProps) {
     // for knowing which to display (login or register)
     const [isLoginVisible, setLoginVisible] = useState(true);
 
@@ -23,7 +25,7 @@ export function Credentials({ onRegisterSuccess, onLoginSuccess }:CredentialsPro
 
     return (
         <div>
-            <ThemeToggle/>
+            <ThemeToggle setTheme={setTheme} theme={theme}/>
             <div className="credentials-container">
                 
                 <img src={logo} className="credentials-logo"/>
