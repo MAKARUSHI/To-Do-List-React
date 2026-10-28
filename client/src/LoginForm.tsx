@@ -2,6 +2,8 @@
 import { useState } from "react"
 import { loginUser } from './Api';
 import { Alert } from "./Alert";
+import eyeOpened from "./assets/eye-opened.png";
+import eyeClosed from "./assets/eye-closed.png";
 
 type LoginGormProps = {
     onClickToRegister: () => void;
@@ -17,6 +19,8 @@ export function LoginForm({ onClickToRegister, onLoginSuccess, setShowAlert, onA
     const [password, setPassword] = useState("");
 
     const [error, setError] = useState<string | null>(null);
+
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleSubmit = async (e: React.SubmitEvent) => {
         e.preventDefault();
@@ -40,7 +44,11 @@ export function LoginForm({ onClickToRegister, onLoginSuccess, setShowAlert, onA
             }
         }
     }
-    
+
+    const toggleVisiblePassword = () => {
+        setShowPassword((prev) => {return !prev;});
+    }
+
     return (
         <form onSubmit={handleSubmit} className="credentials-form" noValidate>
             <h1 className="credentials-form-title">User Login</h1>
@@ -48,7 +56,12 @@ export function LoginForm({ onClickToRegister, onLoginSuccess, setShowAlert, onA
 
             <input type="text" name="username" className="credentials-input" placeholder="Username *" required onChange={(e) => setUsername(e.target.value)}/>
 
-            <input type="password" name="password" className="credentials-input" placeholder="Password *" required onChange={(e) => setPassword(e.target.value)}/>
+            <div className="credentials-password-box">
+                <input type={showPassword ? "text" : "password"} name="password" className="credentials-input" placeholder="Password *" required onChange={(e) => setPassword(e.target.value)}/>
+                <button type="button" className="credentials-input-toggle-password" onClick={toggleVisiblePassword}>
+                    <img src={showPassword ? eyeClosed : eyeOpened} alt="Password visibility toggle" />
+                </button>
+            </div>
 
             <hr className="form-divide-line"/>
 

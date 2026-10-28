@@ -3,13 +3,16 @@ import "./ThemeToggle.css"
 type ThemeToggleProps = {
     setTheme: (theme: string) => void;
     theme: string;
+    source: string;
 }
 
-export function ThemeToggle({setTheme, theme}: ThemeToggleProps) {
+export function ThemeToggle({setTheme, theme, source}: ThemeToggleProps) {
     const toggleTheme = () => {
         const nextTheme = theme === "dark" ? "light" : "dark";
         setTheme(nextTheme);
     };
+    
+    document.documentElement.setAttribute("source-theme", source);
     
 
     // Text for screen readers

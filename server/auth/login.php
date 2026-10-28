@@ -45,7 +45,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     try {
         // create SQL query
-        $stmt = $pdo->prepare("SELECT username, first_name, gender, password FROM users WHERE username = ?");
+        $stmt = $pdo->prepare("SELECT id_user, username, first_name, email, gender, password FROM users WHERE username = ?");
         // execute query with parameter
         $stmt->execute([$username]);
         $user = $stmt->fetch();
@@ -62,6 +62,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         http_response_code(200);
         echo json_encode(["status" => true, "message" => "User found", "user" => $user]);
+
+        $stmt = $pdo->prepare("UPDATE users SET is_active = true WHERE username = ?");
+        // execute query with parameter
+        $stmt->execute([$username]);
+        exit;
     } catch (\PDOException $e) {
         http_response_code(500);
         echo json_encode(["error" => $e->getMessage()]);

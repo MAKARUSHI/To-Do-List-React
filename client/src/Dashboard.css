@@ -1,0 +1,33 @@
+.dashboard-top-box {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    top: 0;
+}
+
+.dashboard-top-profile {
+    background-color: var(--text-title);
+    border: 2px solid var(--border);
+    border-radius: 22px;
+    padding: 3px;
+    margin: 15px;
+    z-index: 1;
+    transition: background-color 0.3s;
+}
+
+.dashboard-top-profile:last-child {
+    position: absolute;
+    margin: 10px;
+    top: 0;
+    right: 0;
+    z-index: 5;
+}
+
+.dashboard-top-profile:hover {
+    background: linear-gradient(to right, var(--text-title), var(--text), var(--text-title));
+}
+
+.dashboard-top-text {
+    color: var(--text);
+}

@@ -15,8 +15,10 @@ export interface RegisterCredentialsResponse {
     error: string;
     user: {
         id: number;
+        first_name: string;
         username: string;
         email: string;
+        gender: string;
     };
 }
 
@@ -30,8 +32,14 @@ export interface LoginCredentialsResponse {
     message: string;
     error: string;
     user: {
+        id: number;
+        first_name: string;
         username: string;
-        firstName: string;
+        email: string;
         gender: string;
     };
+}
+
+export interface LogoutCredentials {
+    username: string;
 }

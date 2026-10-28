@@ -79,6 +79,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 echo json_encode(["status" => false, "error" => "Email is not available"]);
                 exit;
             }
+
+            if ($password !== $confirmPassword) {
+                http_response_code(422);
+                echo json_encode(["status" => false, "error" => "Passwords are not matching"]);
+                exit;
+            }
             
         }
         
@@ -87,7 +93,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         // create SQL query
         $stmt = $pdo->prepare("INSERT INTO users (email, first_name, last_name, date_of_birth, username, password, gender) 
-        VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id_user, username, email");
+        VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id_user, first_name username, email, gender");
         // execute query with parameters
         $stmt->execute([$email, $firstName, $lastName, $birthDay, $username, $passwordHash, $gender]);
         $user = $stmt->fetch();
@@ -100,6 +106,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         http_response_code(201);
         echo json_encode(["status" => true, "message" => "User registered successfully", "user" => $user]);
+
+        $stmt = $pdo->prepare("UPDATE users SET is_active = true WHERE username = ?");
+        // execute query with parameter
+        $stmt->execute([$username]);
         exit;
     } catch (\PDOException $e) {
         if (!$usernameExisting && !$emailExisting) {

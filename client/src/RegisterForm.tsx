@@ -1,6 +1,8 @@
 import { useState } from "react"
 import { registerUser } from "./Api";
 import { Alert } from "./Alert";
+import eyeOpened from "./assets/eye-opened.png";
+import eyeClosed from "./assets/eye-closed.png";
 
 // props define data type of passed variables
 type RegisterFormProps = {
@@ -28,6 +30,12 @@ export function RegisterForm({ onClickToLogin, onRegisterSuccess, setShowAlert, 
     // For knowing which box of register to display
     const [visibleBoxIndex, setVisibleBoxIndex] = useState(0);
 
+    const [showPassword, setShowPassword] = useState(false);
+
+    const toggleVisiblePassword = () => {
+        setShowPassword((prev) => {return !prev;});
+    }
+
     const showNextBox = () =>  {
         setVisibleBoxIndex((prev) => prev + 1);
     }
@@ -43,6 +51,9 @@ export function RegisterForm({ onClickToLogin, onRegisterSuccess, setShowAlert, 
 
         if (!firstName.trim() || !lastName.trim() || !username.trim() || !email.trim() || !gender || !password || !confirmPassword) {
             setError("Please fill in all required fields");
+            setShowAlert(true);
+        } else if (password !== confirmPassword) {
+            setError("Passwords are not matching");
             setShowAlert(true);
         } else {
             try {
@@ -356,21 +367,26 @@ export function RegisterForm({ onClickToLogin, onRegisterSuccess, setShowAlert, 
 
             {visibleBoxIndex === 2 && (
             <div className="register-box">
-
-                <input type="password" 
+                
+                <input type={showPassword ? "text" : "password"} 
                 className="credentials-input" 
                 placeholder="Password *"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}/>
-
-                <input type="password" 
-                className="credentials-input" 
-                placeholder="Confirm Password *"
-                required
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}/>
                 
+                <div className="credentials-password-box">
+                    <input type={showPassword ? "text" : "password"}
+                    className="credentials-input" 
+                    placeholder="Confirm Password *"
+                    required
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}/>
+                    <button type="button" className="credentials-input-toggle-password" onClick={toggleVisiblePassword}>
+                        <img src={showPassword ? eyeClosed : eyeOpened} alt="Password visibility toggle" />
+                    </button>
+                </div>
+
                 <hr className="form-divide-line"/>
 
                 <div className="credentials-button-box">

@@ -25,7 +25,7 @@ export function Credentials({ onRegisterSuccess, onLoginSuccess, setTheme, theme
 
     return (
         <div>
-            <ThemeToggle setTheme={setTheme} theme={theme}/>
+            <ThemeToggle setTheme={setTheme} theme={theme} source="credentials"/>
             <div className="credentials-container">
                 
                 <img src={logo} className="credentials-logo"/>

@@ -2,6 +2,7 @@ import "./App.css"
 import { Credentials } from "./Credentials"
 import { Dashboard } from "./Dashboard";
 import { useState, useEffect } from "react"
+import { logoutUser } from "./Api";
 
 function App() {
 
@@ -15,7 +16,7 @@ function App() {
 
       return savedTheme;
   });
-  
+
   // If theme changes updates storage
   useEffect(() => {
         document.documentElement.setAttribute("data-theme", theme);
@@ -24,6 +25,7 @@ function App() {
 
   const [user, setUser] = useState<any>(() => {
     const savedUser = localStorage.getItem("user");
+    console.log(savedUser);
     return savedUser ? JSON.parse(savedUser) : null;
   });
 
@@ -32,15 +34,23 @@ function App() {
     localStorage.setItem("user", JSON.stringify(user));
   };
 
-  const onUserLogout = () => {
-    setUser(null);
-    localStorage.removeItem("user");
-  }
+  const onUserLogout = async () => {
+    try {
+        if (user?.username) {
+            await logoutUser({ username: user.username });
+        }
+    } catch (error) {
+        console.error("Logout request failed:", error);
+    } finally {
+        setUser(null);
+        localStorage.removeItem("user");
+    }
+};
 
   return (
-    <div style={{width: "100%", height: "100vh"}}>
+    <div className="app-container">
       {user ? (
-        <Dashboard user={user} onUserLogout={onUserLogout}/>
+        <Dashboard user={user} onUserLogout={onUserLogout} setTheme={setTheme} theme={theme}/>
       ) : (
         <Credentials onRegisterSuccess={(loggedInUser) => setUser(loggedInUser)} 
         onLoginSuccess={onLoginSuccess} setTheme={setTheme} theme={theme}/>
