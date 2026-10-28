@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
 import "./Dashboard.css"
+import { logoutUser } from "./Api";
 import { Settings } from "./Settings";
 import profileMale from "./assets/profile-male.png";
 import profileFemale from "./assets/profile-female.png";
@@ -9,22 +10,36 @@ import settings from "./assets/settings.png";
 
 type DashboardProps = {
     user: {
-        id: number;
+        id_user: number;
         username: string;
         first_name: string;
         email: string;
         gender: string;
     };
-    onUserLogout: () => void;
+    onUserLogout: (deleteAccount: boolean) => void;
     setTheme: (theme: string) => void;
     theme: string;
+}
+
+export default function useActivityHeartbeat(userId: number) {
+    useEffect(() => {
+        if (!userId) return;
+
+        logoutUser(userId, false);
+
+        const interval = setInterval(() => {logoutUser(userId, false);}, 60000); 
+
+        return () => clearInterval(interval);
+    }, [userId]);
 }
 
 export function Dashboard({ user, onUserLogout, setTheme, theme }: DashboardProps) {
 
   const [showSettings, setShowSettings] = useState(false);
 
-  console.log(user);
+  console.log("dash" , user);
+
+  useActivityHeartbeat(user?.id_user);
 
   let profileIcon = profileOther;
   if (user.gender === "m") {
@@ -36,6 +51,8 @@ export function Dashboard({ user, onUserLogout, setTheme, theme }: DashboardProp
   function toggleSettings() {
     setShowSettings((prev) => !prev);
   }
+
+  
 
   return (
     <div className="dashboard-container">

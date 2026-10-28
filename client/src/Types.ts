@@ -39,7 +39,3 @@ export interface LoginCredentialsResponse {
         gender: string;
     };
 }
-
-export interface LogoutCredentials {
-    username: string;
-}

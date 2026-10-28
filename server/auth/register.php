@@ -93,7 +93,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         // create SQL query
         $stmt = $pdo->prepare("INSERT INTO users (email, first_name, last_name, date_of_birth, username, password, gender) 
-        VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id_user, first_name username, email, gender");
+        VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id_user, username, first_name, email, gender");
         // execute query with parameters
         $stmt->execute([$email, $firstName, $lastName, $birthDay, $username, $passwordHash, $gender]);
         $user = $stmt->fetch();

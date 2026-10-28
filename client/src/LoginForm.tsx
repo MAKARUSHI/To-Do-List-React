@@ -5,15 +5,15 @@ import { Alert } from "./Alert";
 import eyeOpened from "./assets/eye-opened.png";
 import eyeClosed from "./assets/eye-closed.png";
 
-type LoginGormProps = {
+type LoginFormProps = {
     onClickToRegister: () => void;
-    onLoginSuccess: (user: any) => void;
+    onAuthSuccess: (user: any) => void;
     setShowAlert: (showAlert: boolean) => void;
     onAlertClose: () => void;
     showAlert: boolean;
 }
 
-export function LoginForm({ onClickToRegister, onLoginSuccess, setShowAlert, onAlertClose, showAlert }: LoginGormProps) {
+export function LoginForm({ onClickToRegister, onAuthSuccess, setShowAlert, onAlertClose, showAlert }: LoginFormProps) {
 
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
@@ -37,7 +37,7 @@ export function LoginForm({ onClickToRegister, onLoginSuccess, setShowAlert, onA
                 } else {
                     setShowAlert(false);
                     setError(null);
-                    onLoginSuccess(result.user);  
+                    onAuthSuccess(result.user);  
                 }
             } catch (err: any) {
                 console.log(err.message);
@@ -54,7 +54,7 @@ export function LoginForm({ onClickToRegister, onLoginSuccess, setShowAlert, onA
             <h1 className="credentials-form-title">User Login</h1>
             <Alert message={error} isOpen={showAlert} onClose={onAlertClose}/>
 
-            <input type="text" name="username" className="credentials-input" placeholder="Username *" required onChange={(e) => setUsername(e.target.value)}/>
+            <input type="text" name="username" className="credentials-input" placeholder="Username *" required autoComplete="username" onChange={(e) => setUsername(e.target.value)}/>
 
             <div className="credentials-password-box">
                 <input type={showPassword ? "text" : "password"} name="password" className="credentials-input" placeholder="Password *" required onChange={(e) => setPassword(e.target.value)}/>

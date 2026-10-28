@@ -34,13 +34,22 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $rawInput = file_get_contents("php://input");
     $data = json_decode($rawInput, true);
 
-    $username = trim($data["username"] ?? '');
+    $userId = trim($data["id_user"] ?? '');
+    $deleteAccount = $data["deleteAccount"];
 
     try {
         // create SQL query
-        $stmt = $pdo->prepare("UPDATE users SET is_active = false  WHERE username = ?");
+        $stmt = $pdo->prepare("UPDATE users SET is_active = true, last_active = NOW() WHERE id_user = ?");
         // execute query with parameter
-        $stmt->execute([$username]);
+        $stmt->execute([$userId]);
+
+        $stmt = $pdo->prepare("UPDATE users SET is_active = false WHERE last_active < NOW() - INTERVAL '3 minutes' AND is_active = true");
+        $stmt->execute();
+
+        if ($deleteAccount) {
+            $stmt = $pdo->prepare("DELETE FROM users WHERE id_user = ?");
+            $stmt->execute([$userId]);
+        }
         exit;
     } catch (\PDOException $e) {
         http_response_code(500);

@@ -25,19 +25,20 @@ function App() {
 
   const [user, setUser] = useState<any>(() => {
     const savedUser = localStorage.getItem("user");
-    console.log(savedUser);
+    console.log("app" , savedUser);
     return savedUser ? JSON.parse(savedUser) : null;
   });
 
-  const onLoginSuccess = (user: any) => {
+  const onAuthSuccess = (user: any) => {
     setUser(user);
     localStorage.setItem("user", JSON.stringify(user));
   };
 
-  const onUserLogout = async () => {
+  const onUserLogout = async (deleteAccount: boolean) => {
     try {
         if (user?.username) {
-            await logoutUser({ username: user.username });
+          console.log("logout" , user.id_user)
+          await logoutUser(user.id_user, deleteAccount);
         }
     } catch (error) {
         console.error("Logout request failed:", error);
@@ -52,8 +53,7 @@ function App() {
       {user ? (
         <Dashboard user={user} onUserLogout={onUserLogout} setTheme={setTheme} theme={theme}/>
       ) : (
-        <Credentials onRegisterSuccess={(loggedInUser) => setUser(loggedInUser)} 
-        onLoginSuccess={onLoginSuccess} setTheme={setTheme} theme={theme}/>
+        <Credentials onAuthSuccess={onAuthSuccess} setTheme={setTheme} theme={theme}/>
       )}
       
     </div>

@@ -6,13 +6,12 @@ import { ThemeToggle } from "./ThemeToggle"
 import { useState } from 'react';
 
 type CredentialsProps = {
-    onRegisterSuccess: (user: any) => void;
-    onLoginSuccess: (user: any) => void;
+    onAuthSuccess: (user: any) => void;
     setTheme: (theme: string) => void;
     theme: string;
 }
 
-export function Credentials({ onRegisterSuccess, onLoginSuccess, setTheme, theme }:CredentialsProps) {
+export function Credentials({  onAuthSuccess, setTheme, theme }:CredentialsProps) {
     // for knowing which to display (login or register)
     const [isLoginVisible, setLoginVisible] = useState(true);
 
@@ -32,9 +31,9 @@ export function Credentials({ onRegisterSuccess, onLoginSuccess, setTheme, theme
                 <hr className="credentials-vertical-line"/>
                 
                 {isLoginVisible ? (
-                    <LoginForm onClickToRegister={() => setLoginVisible(false)} onLoginSuccess={onLoginSuccess} setShowAlert={setShowAlert} onAlertClose={onAlertClose} showAlert={showAlert}/>
+                    <LoginForm onClickToRegister={() => setLoginVisible(false)} onAuthSuccess={onAuthSuccess} setShowAlert={setShowAlert} onAlertClose={onAlertClose} showAlert={showAlert}/>
                 ) : 
-                (<RegisterForm onClickToLogin={() => setLoginVisible(true)} onRegisterSuccess={onRegisterSuccess} setShowAlert={setShowAlert} onAlertClose={onAlertClose} showAlert={showAlert}/>
+                (<RegisterForm onClickToLogin={() => setLoginVisible(true)} onAuthSuccess={onAuthSuccess} setShowAlert={setShowAlert} onAlertClose={onAlertClose} showAlert={showAlert}/>
                 )}
                 
             </div>

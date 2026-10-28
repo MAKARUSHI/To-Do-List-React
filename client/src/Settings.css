@@ -80,6 +80,37 @@ button.settings-logout:hover {
     z-index: 5;
 }
 
+.setting-delete-warning {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    position: absolute;
+    padding: 30px;
+    background-color: var(--background);
+    border-radius: 30px;
+    width: 270px;
+}
+
+.setting-box-title {
+    color: var(--text-title);
+    font-size: 30px;
+    margin-bottom: 15px;
+}
+
+.setting-delete-button {
+    background-color: var(--background-box);
+    font-size: 22px;
+    color: var(--text);
+    border-radius: 20px;
+    padding: 10px 20px;
+    border: none;
+    transition: background-color 0.3s;
+}
+
+.setting-delete-button:hover {
+    background-color: var(--border);
+}
+
 
 
 

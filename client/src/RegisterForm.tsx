@@ -7,13 +7,13 @@ import eyeClosed from "./assets/eye-closed.png";
 // props define data type of passed variables
 type RegisterFormProps = {
     onClickToLogin: () => void;
-    onRegisterSuccess: (user: any) => void;
+    onAuthSuccess: (user: any) => void;
     setShowAlert: (showAlert: boolean) => void;
     onAlertClose: () => void;
     showAlert: boolean;
 }
 
-export function RegisterForm({ onClickToLogin, onRegisterSuccess, setShowAlert, onAlertClose, showAlert } : RegisterFormProps) {
+export function RegisterForm({ onClickToLogin, onAuthSuccess, setShowAlert, onAlertClose, showAlert } : RegisterFormProps) {
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [username, setUsername] = useState("");
@@ -64,7 +64,7 @@ export function RegisterForm({ onClickToLogin, onRegisterSuccess, setShowAlert, 
                 } else {
                     setError(null);
                     setShowAlert(false);
-                    onRegisterSuccess(result.user);
+                    onAuthSuccess(result.user);
                 }
 
             } catch (err: any) {
@@ -102,7 +102,8 @@ export function RegisterForm({ onClickToLogin, onRegisterSuccess, setShowAlert, 
                 <input type="text" 
                 className="credentials-input" 
                 placeholder="Username *"
-                required 
+                required
+                autoComplete="username"
                 value={username} 
                 onChange={(e) => setUsername(e.target.value)}/>
 
