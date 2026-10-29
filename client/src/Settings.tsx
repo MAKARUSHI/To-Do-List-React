@@ -2,27 +2,38 @@ import "./Settings.css";
 import closeIcon from "./assets/close.png";
 import { ThemeToggle } from "./ThemeToggle";
 import { useState } from "react";
+import { Warning } from "./Warning";
 
 type SettingsProps = {
-    onUserLogout: (deleteAccount: boolean) => void;
+    onUserLogout: (action: string) => void;
     toggleSettings: () => void;
     showSettings: boolean;
     setTheme: (theme: string) => void;
     theme: string;
 }
 
-
-export function Settings({ onUserLogout, toggleSettings, showSettings, setTheme, theme } : SettingsProps) {
+export function Settings({ onUserLogout, toggleSettings, setTheme, theme } : SettingsProps) {
     const savedUser = localStorage.getItem("user");
-    
     const [deleteWarning, setDeleteWarning] = useState(false);
+
+    // Clean event handler instead of running code during render
+    const handleWarningAction = (action: string) => {
+        if (action === "cancel") {
+            setDeleteWarning(false);
+        } else if (action === "submit") {
+            onUserLogout("delete");
+        }
+    };
 
     console.log(savedUser);
     return (
         <div className="settings-main-container">
-            <div className="settings-close-back-box" onClick={() => {
-                                (showSettings && !deleteWarning) ? toggleSettings() : setDeleteWarning(false)}}>
-            </div>
+            {!deleteWarning && 
+                <div className="settings-close-back-box" onClick={toggleSettings}></div>
+            }
+
+            
+
             <div className="settings-container">
                 <div className="setting-box settings-top-box">
                     <h2 className="settings-title">Settings</h2>
@@ -33,23 +44,17 @@ export function Settings({ onUserLogout, toggleSettings, showSettings, setTheme,
                     <ThemeToggle setTheme={setTheme} theme={theme} source="settings"/>
                 </div>
                 <div className="setting-box settings-bottom-box">
-                    <button className="settings-logout" onClick={() => {onUserLogout(false)}}>Log Out</button>
+                    <button className="settings-logout" onClick={() => {onUserLogout("logout")}}>Log Out</button>
                 </div>
 
                 <div className="setting-box settings-bottom-box">
-                    <button className="settings-logout" onClick={() => {setDeleteWarning(true)}}>Delete account</button>
-                    
-                    {deleteWarning &&
-                    <div className="setting-delete-warning">
-                        <h3 className="setting-box-title">Delete account?</h3>
-                        <div style={{"display": "flex", "justifyContent": "space-between", "width": "100%"}}>
-                            <button className="setting-delete-button" onClick={() => {setDeleteWarning(false)}}>Cancel</button>
-                            <button className="setting-delete-button" onClick={() => {onUserLogout(true)}}>Delete</button>
-                        </div>
-                    </div>
-                    }
+                    <button className="settings-logout" onClick={() => setDeleteWarning(true)}>Delete account</button>
                 </div>
             </div>
+
+            {deleteWarning && (
+                        <Warning func={handleWarningAction} title="Delete account?" firstButtonText="Cancel" secondButtontext="Submit"/>
+                    )}
         </div>
     )
 }

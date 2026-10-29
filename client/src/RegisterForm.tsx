@@ -105,7 +105,7 @@ export function RegisterForm({ onClickToLogin, onAuthSuccess, setShowAlert, onAl
                 required
                 autoComplete="username"
                 value={username} 
-                onChange={(e) => setUsername(e.target.value)}/>
+                onChange={(e) => setUsername(e.target.value.toLowerCase())}/>
 
                 <hr className="form-divide-line"/>
                 <div className="credentials-button-box">

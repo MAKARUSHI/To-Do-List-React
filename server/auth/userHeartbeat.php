@@ -35,30 +35,30 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $data = json_decode($rawInput, true);
 
     $userId = trim($data["id_user"] ?? '');
-    $deleteAccount = $data["deleteAccount"];
+    $action = $data["action"];
 
     try {
-        // create SQL query
-        $stmt = $pdo->prepare("UPDATE users SET is_active = true, last_active = NOW() WHERE id_user = ?");
-        // execute query with parameter
-        $stmt->execute([$userId]);
+        if ($action === "heartbeat") {
+            // create SQL query
+            $stmt = $pdo->prepare("UPDATE users SET is_active = true, last_active = NOW() WHERE id_user = ?");
+            // execute query with parameter
+            $stmt->execute([$userId]);
 
-        $stmt = $pdo->prepare("UPDATE users SET is_active = false WHERE last_active < NOW() - INTERVAL '3 minutes' AND is_active = true");
-        $stmt->execute();
-
-        if ($deleteAccount) {
+            // check other users activity
+            $stmt = $pdo->prepare("UPDATE users SET is_active = false WHERE last_active < NOW() - INTERVAL '3 minutes' AND is_active = true");
+            $stmt->execute();
+        } else if ($action === "logout") {
+            $stmt = $pdo->prepare("UPDATE users SET is_active = false WHERE id_user = ?");
+            $stmt->execute([$userId]);
+        } else if ($action === "delete") {
             $stmt = $pdo->prepare("DELETE FROM users WHERE id_user = ?");
             $stmt->execute([$userId]);
         }
         exit;
     } catch (\PDOException $e) {
-        http_response_code(500);
-        echo json_encode(["error" => $e->getMessage()]);
         exit;
     }
 } else {
-    http_response_code(405);
-    echo json_encode(["error" => "Method not allowed"]);
     exit;
 }
 ?>

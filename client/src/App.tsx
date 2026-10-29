@@ -9,7 +9,6 @@ function App() {
   const [theme, setTheme] = useState<string>(() => {
       const savedTheme = localStorage.getItem("theme");
       if (!savedTheme) {
-          console.log("theme to dark");
           localStorage.setItem("theme", "dark");
           return "dark"
       }
@@ -25,7 +24,6 @@ function App() {
 
   const [user, setUser] = useState<any>(() => {
     const savedUser = localStorage.getItem("user");
-    console.log("app" , savedUser);
     return savedUser ? JSON.parse(savedUser) : null;
   });
 
@@ -34,11 +32,10 @@ function App() {
     localStorage.setItem("user", JSON.stringify(user));
   };
 
-  const onUserLogout = async (deleteAccount: boolean) => {
+  const onUserLogout = async (action: string) => {
     try {
         if (user?.username) {
-          console.log("logout" , user.id_user)
-          await logoutUser(user.id_user, deleteAccount);
+          await logoutUser(user.id_user, action);
         }
     } catch (error) {
         console.error("Logout request failed:", error);

@@ -18,7 +18,7 @@
     min-height: 500px;
     max-height: 700px;
     border-radius: 20px;
-    z-index: 10;
+    z-index: 20;
 }
 
 .setting-box {
@@ -52,7 +52,6 @@
 
 .close-icon:hover {
     background-color: var(--text-title);
-
 }
 
 .settings-bottom-box {
@@ -71,44 +70,6 @@ button.settings-logout {
 
 button.settings-logout:hover {
     background-color: var(--text);
-}
-
-.settings-close-back-box {
-    position: absolute;
-    width: 100%;
-    height: 100vh;
-    z-index: 5;
-}
-
-.setting-delete-warning {
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    position: absolute;
-    padding: 30px;
-    background-color: var(--background);
-    border-radius: 30px;
-    width: 270px;
-}
-
-.setting-box-title {
-    color: var(--text-title);
-    font-size: 30px;
-    margin-bottom: 15px;
-}
-
-.setting-delete-button {
-    background-color: var(--background-box);
-    font-size: 22px;
-    color: var(--text);
-    border-radius: 20px;
-    padding: 10px 20px;
-    border: none;
-    transition: background-color 0.3s;
-}
-
-.setting-delete-button:hover {
-    background-color: var(--border);
 }
 
 

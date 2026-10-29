@@ -3,6 +3,7 @@ import "./App.css";
 import "./Dashboard.css"
 import { logoutUser } from "./Api";
 import { Settings } from "./Settings";
+import { Menu } from "./Menu";
 import profileMale from "./assets/profile-male.png";
 import profileFemale from "./assets/profile-female.png";
 import profileOther from "./assets/profile-other.png";
@@ -16,7 +17,7 @@ type DashboardProps = {
         email: string;
         gender: string;
     };
-    onUserLogout: (deleteAccount: boolean) => void;
+    onUserLogout: (action: string) => void;
     setTheme: (theme: string) => void;
     theme: string;
 }
@@ -25,9 +26,9 @@ export default function useActivityHeartbeat(userId: number) {
     useEffect(() => {
         if (!userId) return;
 
-        logoutUser(userId, false);
+        logoutUser(userId, "heartbeat");
 
-        const interval = setInterval(() => {logoutUser(userId, false);}, 60000); 
+        const interval = setInterval(() => {logoutUser(userId, "heartbeat");}, 60000); 
 
         return () => clearInterval(interval);
     }, [userId]);
@@ -37,9 +38,9 @@ export function Dashboard({ user, onUserLogout, setTheme, theme }: DashboardProp
 
   const [showSettings, setShowSettings] = useState(false);
 
-  console.log("dash" , user);
-
   useActivityHeartbeat(user?.id_user);
+
+  const [showWarning, setShowWarning] = useState(false);
 
   let profileIcon = profileOther;
   if (user.gender === "m") {
@@ -59,11 +60,14 @@ export function Dashboard({ user, onUserLogout, setTheme, theme }: DashboardProp
       {showSettings && (
           <Settings onUserLogout={onUserLogout} toggleSettings={toggleSettings} showSettings={showSettings} setTheme={setTheme} theme={theme} />
       )}
+
         <div className="dashboard-top-box">
           <img src={profileIcon} alt="User profile icon" className="dashboard-top-profile"/>
-          <h1 className="dashboard-top-text">Hello, {user.first_name}</h1>
+          <h1 className="dashboard-top-text">Wellcome back, {user.first_name}</h1>
           <img src={settings} alt="Settings icon" onClick={toggleSettings} className="dashboard-top-profile"/>
         </div>
+
+        <Menu idUser={user.id_user} username={user.username} setShowWarning={setShowWarning} showWarning={showWarning}/>
       
     </div>
   )
