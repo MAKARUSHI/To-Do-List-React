@@ -6,17 +6,18 @@ import { checkMember } from "./Api";
 
 type TaskEditorProps = {
     setTaskEditor: (prev: boolean) => void;
+    fetchTasks: () => void;
     username: string;
 }
 
-export function TaskEditor({ setTaskEditor, username }: TaskEditorProps) {
+export function TaskEditor({ setTaskEditor, username, fetchTasks }: TaskEditorProps) {
     
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [shared, setShared] = useState(false);
     
     
-    const [titleError, setTitleError] = useState(false);
+    const [titleError, setTitleError] = useState("");
     
     const [member, setMember] = useState("");
     let [members, setMembers] = useState<string[]>([username]);
@@ -30,6 +31,7 @@ export function TaskEditor({ setTaskEditor, username }: TaskEditorProps) {
             if (!members.includes(member)) {
                 setMembers([...members, member]);
                 setMember("");
+                setMemberError("");
             } else {
                 setMemberError("Member already added");
             }
@@ -39,15 +41,19 @@ export function TaskEditor({ setTaskEditor, username }: TaskEditorProps) {
         
     }
 
-    function handleSubmit(e: React.SubmitEvent) {
+    async function handleSubmit(e: React.SyntheticEvent) {
         e.preventDefault();
 
         if (!title.trim()) {
-            setTitleError(true);
-            
+            setTitleError("Please input title");
+        } else if (members.length === 0) {
+            setMemberError("No chosen members");
         } else {
-            setTitleError(false);
-            createTask({username, members, title, description, shared});
+            setTitleError("");
+            setMemberError("");
+            
+            await createTask({ action: "create", username, members, title, description, shared });
+            fetchTasks();
             setTaskEditor(false);
         }
     }
@@ -60,8 +66,7 @@ export function TaskEditor({ setTaskEditor, username }: TaskEditorProps) {
                 <div className="editor-box">
                     <h2 className="editor-title">Title</h2>
                     <input type="text"  className="editor-input" placeholder="Task title" onChange={(e) => setTitle(e.target.value)}/>
-                    {titleError &&
-                    <p className="editor-error-text">Please input title</p>}
+                    <p className="editor-error-text">{titleError}</p>
                 </div>
 
                 <div className="editor-box">

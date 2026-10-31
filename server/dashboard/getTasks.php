@@ -29,29 +29,45 @@ if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
 
 require_once "../../db.php";
 
+function decryptString($data, $key) {
+    if (empty($data)) return $data;
+    $method = "AES-256-CBC";
+    $data = base64_decode($data);
+    $ivLength = openssl_cipher_iv_length($method);
+    
+    $iv = substr($data, 0, $ivLength);
+    $encrypted = substr($data, $ivLength);
+    
+    return openssl_decrypt($encrypted, $method, $key, 0, $iv);
+}
+
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $rawInput = file_get_contents("php://input");
     $data = json_decode($rawInput, true);
 
-    $id_user = $data["idUser"];
+    $idUser = $data["idUser"];
 
     // Basic validation
-    if (empty($id_user)) {
+    if (empty($idUser)) {
         http_response_code(400);
         echo json_encode(["error" => "No user ID"]);
         exit;
     }
 
     try {
-        $stmt = $pdo->prepare("SELECT quests.id_quest, quests.title, quests.description FROM quests
+        $stmt = $pdo->prepare("SELECT quests.id_quest, quests.title, quests.description, COUNT(*) OVER() AS total_count FROM quests
         JOIN quest_assignees ON quests.id_quest = quest_assignees.id_quest
         JOIN users ON quest_assignees.id_user = users.id_user WHERE users.id_user = ?");
-        $stmt->execute([$id_user]);
+        $stmt->execute([$idUser]);
         $tasks = $stmt->fetchAll();
 
+        foreach ($tasks as &$task) {
+            $task['title'] = decryptString($task['title'], $encryptionKey);
+            $task['description'] = decryptString($task['description'], $encryptionKey);
+        }
         
         http_response_code(200);
-        echo json_encode(["message" => "Tasks found", "tasks" => $tasks]);
+        echo json_encode(["message" => "Tasks found", "tasks" => $tasks, "count" => $tasks[0]["total_count"]]);
     } catch (\PDOException $e) {
         http_response_code(500);
         echo json_encode(["error" => $e->getMessage()]);

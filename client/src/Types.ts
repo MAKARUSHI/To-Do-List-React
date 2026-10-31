@@ -53,6 +53,7 @@ export interface Task {
 export interface GetTasksResponse {
     status: boolean;
     tasks: Task[];
+    count: number | null;
 }
 
 export interface CheckMemberResponse {
@@ -62,10 +63,17 @@ export interface CheckMemberResponse {
 }
 
 export interface CreateTask {
+    action: string;
     username: string;
     members: string[];
     title: string;
     description: string;
     shared: boolean;
+}
+
+export interface taskAction {
+    action: string;
+    idUser: number;
+    idQuest: number;
 }
 

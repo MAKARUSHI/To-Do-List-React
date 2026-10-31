@@ -54,7 +54,7 @@ export function LoginForm({ onClickToRegister, onAuthSuccess, setShowAlert, onAl
             <h1 className="credentials-form-title">User Login</h1>
             <Alert message={error} isOpen={showAlert} onClose={onAlertClose}/>
 
-            <input type="text" name="username" className="credentials-input" placeholder="Username *" required autoComplete="username" onChange={(e) => setUsername(e.target.value)}/>
+            <input type="text" name="username" className="credentials-input" placeholder="Username *" required autoComplete="username" onChange={(e) => setUsername(e.target.value.toLowerCase())}/>
 
             <div className="credentials-password-box">
                 <input type={showPassword ? "text" : "password"} name="password" className="credentials-input" placeholder="Password *" required onChange={(e) => setPassword(e.target.value)}/>

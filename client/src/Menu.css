@@ -26,6 +26,17 @@
     color: var(--text-title);
 }
 
+.no-tasks-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    font-size: 26px;
+
+    color: var(--text);
+    border-radius: 20px;
+}
+
 @media (max-width: 768px) {
     .menu-main-container {
         max-width: 100%;

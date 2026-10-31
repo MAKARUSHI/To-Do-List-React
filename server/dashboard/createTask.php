@@ -64,11 +64,20 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
     }
 }
 
+function encryptString($data, $key) {
+    if (empty($data)) return $data;
+    $method = "AES-256-CBC";
+    $ivLength = openssl_cipher_iv_length($method);
+    $iv = openssl_random_pseudo_bytes($ivLength);
+    $encrypted = openssl_encrypt($data, $method, $key, 0, $iv);
+    return base64_encode($iv . $encrypted);
+}
+
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $rawInput = file_get_contents("php://input");
     $data = json_decode($rawInput, true);
 
-    $username = $data["username"] ?? null;
+    $username = trim($data["username"]) ?? null;
     $members = $data["members"] ?? null;
     $title = trim($data["title"] ?? "");
     $description = trim($data["description"] ?? "");
@@ -81,26 +90,42 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     try {
-        // 1. Insert the main quest
+        // 1. Create a dedicated statement for looking up user IDs by username
+        $userLookupStmt = $pdo->prepare("SELECT id_user FROM users WHERE username = ?");
+        
+        // 2. Fetch the creator's ID first
+        $userLookupStmt->execute([$username]);
+        $creatorUser = $userLookupStmt->fetch();
+
+        if (!$creatorUser) {
+            http_response_code(400);
+            echo json_encode(["status" => false, "error" => "Creator username not found"]);
+            exit;
+        }
+
+        $encryptedTitle = encryptString($title, $encryptionKey);
+        $encryptedDescription = encryptString($description, $encryptionKey);
+
+        $creatorId = $creatorUser["id_user"];
+
         $stmt = $pdo->prepare("INSERT INTO quests (title, description, shared, creator) 
                                 VALUES (?, ?, ?, ?) RETURNING id_quest");
-        $stmt->bindValue(1, $title, PDO::PARAM_STR);
-        $stmt->bindValue(2, $description, PDO::PARAM_STR);
+        $stmt->bindValue(1, $encryptedTitle, PDO::PARAM_STR);
+        $stmt->bindValue(2, $encryptedDescription, PDO::PARAM_STR);
         $stmt->bindValue(3, $shared, PDO::PARAM_BOOL);
-        $stmt->bindValue(4, $id_user, PDO::PARAM_INT);
+        $stmt->bindValue(4, $creatorId, PDO::PARAM_INT);
         $stmt->execute();
         
         $taskId = $stmt->fetchColumn();
 
-        $userId = $pdo->prepare("SELECT id_user FROM users WHERE username = ?");
         $assignStmt = $pdo->prepare("INSERT INTO quest_assignees (id_quest, id_user) VALUES (?, ?) ON CONFLICT DO NOTHING");
 
-        foreach ($members as $username) {
-            $userId->execute([trim($username)]);
-            $assigneeUser = $userId->fetch();
+        foreach ($members as $memberName) {
+            $userLookupStmt->execute([trim($memberName)]);
+            $assigneeUser = $userLookupStmt->fetch();
 
             if ($assigneeUser) {
-                $assignStmt->execute([$taskId, $assigneeUser['id_user']]);
+                $assignStmt->execute([$taskId, $assigneeUser["id_user"]]);
             }
         }
         
@@ -110,7 +135,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     } catch (\PDOException $e) {
         http_response_code(500);
-        // This will print the exact database error message in your JSON response
         echo json_encode([
             "status" => false, 
             "error" => $e->getMessage(),

@@ -13,7 +13,6 @@ type SettingsProps = {
 }
 
 export function Settings({ onUserLogout, toggleSettings, setTheme, theme } : SettingsProps) {
-    const savedUser = localStorage.getItem("user");
     const [deleteWarning, setDeleteWarning] = useState(false);
 
     // Clean event handler instead of running code during render
@@ -25,7 +24,6 @@ export function Settings({ onUserLogout, toggleSettings, setTheme, theme } : Set
         }
     };
 
-    console.log(savedUser);
     return (
         <div className="settings-main-container">
             {!deleteWarning && 

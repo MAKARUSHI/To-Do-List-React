@@ -1,6 +1,6 @@
 import type {
     RegisterCredentials, RegisterCredentialsResponse, LoginCredentials,
-    LoginCredentialsResponse, GetTasks, GetTasksResponse, CreateTask, CheckMemberResponse
+    LoginCredentialsResponse, GetTasks, GetTasksResponse, CreateTask, CheckMemberResponse, taskAction
 } from './Types';
 
 const API_BASE_URL = "http://webtrac.duckdns.org";
@@ -56,6 +56,15 @@ export async function checkMember(username: string): Promise<CheckMemberResponse
 
 export async function createTask(task: CreateTask) {
     await fetch(`${API_BASE_URL}/server/dashboard/createTask.php`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(task),
+    });
+    return
+}
+
+export async function taskAction(task: taskAction) {
+    await fetch(`${API_BASE_URL}/server/dashboard/taskAction.php`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(task),

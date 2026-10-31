@@ -47,6 +47,6 @@
 
 html {
   min-width: max-content;
-  background: linear-gradient(135deg, var(--background), var(--background-box));
+  background: linear-gradient(180deg, var(--background), var(--background-box), var(--background));
   transition: background-color 0.3s ease, color 0.3s ease;
 }

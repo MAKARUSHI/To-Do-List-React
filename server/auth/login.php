@@ -63,7 +63,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         http_response_code(200);
         echo json_encode(["status" => true, "message" => "User found", "user" => $user]);
 
-        $stmt = $pdo->prepare("UPDATE users SET is_active = true WHERE username = ?");
+        $stmt = $pdo->prepare("UPDATE users SET is_active = true, last_login = CURRENT_TIMESTAMP WHERE username = ?");
         // execute query with parameter
         $stmt->execute([$username]);
         exit;
