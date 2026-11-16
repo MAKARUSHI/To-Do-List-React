@@ -28,4 +28,5 @@ build.sh
 # DB
 dbConfig.php
 task.php
-assets
+/assets/
+!**/assets/

@@ -7,6 +7,7 @@ import { getTasks } from "./Api";
 import { TaskEditor } from "./TaskEditor";
 import type { GetTasksResponse } from "./Types";
 import { taskAction } from "./Api";
+
 type MenuProps = {
     setShowWarning: (show: boolean) => void;
     showWarning: boolean;
@@ -14,9 +15,13 @@ type MenuProps = {
     username: string;
 }
 
-type Quest = {
+export type Quest = {
     idQuest: number;
+    title?: string;
+    description?: string;
+    members?: string[];
     action: string;
+    shared?: boolean;
 }
 
 export function Menu({ setShowWarning, showWarning, idUser, username }: MenuProps) {
@@ -36,8 +41,9 @@ export function Menu({ setShowWarning, showWarning, idUser, username }: MenuProp
         fetchTasks();
     }, [idUser]);
 
-    function toggleShowWarning(action: string, idQuest: number, title: string) {
-        setQuest({idQuest, action: action});
+    function toggleShowWarning(action: string, idQuest: number, title: string, 
+        description?: string, members?: string[], shared?: boolean) {
+        setQuest({idQuest: idQuest, action: action, title: title, description: description, members: members, shared: shared});
 
         if (action === "complete") {
             setWarningtext(title + " completed?");
@@ -45,6 +51,8 @@ export function Menu({ setShowWarning, showWarning, idUser, username }: MenuProp
         } else if (action === "delete") {
             setWarningtext("Delete " + title);
             setShowWarning(true);    
+        } else if (action === "edit") {
+            setTaskEditor(true);
         }
     }
 
@@ -52,7 +60,7 @@ export function Menu({ setShowWarning, showWarning, idUser, username }: MenuProp
         setShowWarning(false);
         if (action === "submit") {
             if (quest?.action) {
-                await taskAction({action: quest.action, idUser: idUser, idQuest: quest.idQuest});
+                await taskAction({action: quest.action, username: username, idQuest: quest.idQuest});
                 fetchTasks();
             }
         }
@@ -63,7 +71,7 @@ export function Menu({ setShowWarning, showWarning, idUser, username }: MenuProp
             <div className="menu-title-box">
                 <h1 className="menu-title">Tasks: {tasksList.count}</h1>
 
-                <img src={addIcon} className="quest-icon" alt="Create new task" onClick={() => setTaskEditor(true)}/>
+                <img src={addIcon} className="quest-icon" alt="Create new task" onClick={() => { setQuest(null); setTaskEditor(true); }}/>
             </div>
             {tasksList.tasks.length === 0 ? (
                 <div className="no-tasks-container">
@@ -72,7 +80,8 @@ export function Menu({ setShowWarning, showWarning, idUser, username }: MenuProp
             ) : ( 
                 tasksList.tasks.map((task) => (
                     <Quest key={task.id_quest} title={task.title} idQuest={task.id_quest} 
-                    description={task.description} toggleShowWarning={toggleShowWarning}/>
+                    description={task.description ?? ""} toggleShowWarning={toggleShowWarning}
+                    members={task.members} shared={task.shared ?? false}/>
                 ))
             )}
 
@@ -80,7 +89,8 @@ export function Menu({ setShowWarning, showWarning, idUser, username }: MenuProp
                 <Warning func={warningControl} title={warningText} firstButtonText="Cancel" secondButtontext="Submit"/>
             }
             {taskEditor && 
-                <TaskEditor setTaskEditor={setTaskEditor} fetchTasks={fetchTasks} username={username}/>
+                <TaskEditor setTaskEditor={setTaskEditor} fetchTasks={fetchTasks} 
+                username={username} quest={quest} setQuest={setQuest}/>
             }
 
         </div>

@@ -47,7 +47,9 @@ export interface GetTasks {
 export interface Task {
     id_quest: number;
     title: string;
-    description: string;
+    description?: string;
+    members: string[];
+    shared: boolean;
 }
 
 export interface GetTasksResponse {
@@ -73,7 +75,17 @@ export interface CreateTask {
 
 export interface taskAction {
     action: string;
-    idUser: number;
+    username: string;
     idQuest: number;
+    title?: string;
+    description?: string;
+    members?: string[];
+    shared?: boolean;
+}
+
+export interface taskActionResponse {
+    status: boolean;
+    message: string;
+    error: string;
 }
 

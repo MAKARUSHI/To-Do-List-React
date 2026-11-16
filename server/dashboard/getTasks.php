@@ -55,19 +55,27 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     try {
-        $stmt = $pdo->prepare("SELECT quests.id_quest, quests.title, quests.description, COUNT(*) OVER() AS total_count FROM quests
+        $stmt = $pdo->prepare("SELECT quests.id_quest, quests.title, quests.description, quests.shared,COUNT(*) OVER() AS total_count FROM quests
         JOIN quest_assignees ON quests.id_quest = quest_assignees.id_quest
         JOIN users ON quest_assignees.id_user = users.id_user WHERE users.id_user = ?");
         $stmt->execute([$idUser]);
         $tasks = $stmt->fetchAll();
 
+        
+
         foreach ($tasks as &$task) {
             $task['title'] = decryptString($task['title'], $encryptionKey);
             $task['description'] = decryptString($task['description'], $encryptionKey);
+
+            $stmt = $pdo->prepare("SELECT users.username FROM users JOIN quest_assignees ON users.id_user = quest_assignees.id_user WHERE quest_assignees.id_quest = ?");
+            $stmt->execute([$task['id_quest']]);
+            $members = $stmt->fetchAll(PDO::FETCH_COLUMN);
+            $task['members'] = $members;
         }
-        
+        unset($task);
+
         http_response_code(200);
-        echo json_encode(["message" => "Tasks found", "tasks" => $tasks, "count" => $tasks[0]["total_count"]]);
+        echo json_encode(["message" => "Tasks found", "tasks" => $tasks, "count" => $tasks[0]["total_count"] ?? 0]);
     } catch (\PDOException $e) {
         http_response_code(500);
         echo json_encode(["error" => $e->getMessage()]);

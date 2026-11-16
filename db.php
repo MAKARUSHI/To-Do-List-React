@@ -21,3 +21,12 @@ try {
     echo json_encode(["error" => "Database connection failed: " . $e->getMessage()]);
     exit;
 }
+
+function encryptString($data, $key) {
+    if (empty($data)) return $data;
+    $method = "AES-256-CBC";
+    $ivLength = openssl_cipher_iv_length($method);
+    $iv = openssl_random_pseudo_bytes($ivLength);
+    $encrypted = openssl_encrypt($data, $method, $key, 0, $iv);
+    return base64_encode($iv . $encrypted);
+}

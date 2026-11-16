@@ -368,13 +368,18 @@ export function RegisterForm({ onClickToLogin, onAuthSuccess, setShowAlert, onAl
 
             {visibleBoxIndex === 2 && (
             <div className="register-box">
-                
-                <input type={showPassword ? "text" : "password"} 
-                className="credentials-input" 
-                placeholder="Password *"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}/>
+
+                <div className="credentials-password-box">
+                    <input type={showPassword ? "text" : "password"}
+                    className="credentials-input" 
+                    placeholder="Password *"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}/>
+                    <button type="button" className="credentials-input-toggle-password" onClick={toggleVisiblePassword}>
+                        <img src={showPassword ? eyeClosed : eyeOpened} alt="Password visibility toggle" />
+                    </button>
+                </div>
                 
                 <div className="credentials-password-box">
                     <input type={showPassword ? "text" : "password"}

@@ -2,25 +2,28 @@ import "./TaskEditor.css";
 import { useState } from "react";
 import { createTask } from "./Api";
 import addIcon from "./assets/plus.png";
-import { checkMember } from "./Api";
+import { checkMember, taskAction } from "./Api";
+import type { Quest } from "./Menu";
 
 type TaskEditorProps = {
     setTaskEditor: (prev: boolean) => void;
     fetchTasks: () => void;
+    setQuest: (quest: Quest | null) => void;
+    quest: Quest | null;
     username: string;
 }
 
-export function TaskEditor({ setTaskEditor, username, fetchTasks }: TaskEditorProps) {
+export function TaskEditor({ setTaskEditor, username, fetchTasks, setQuest, quest }: TaskEditorProps) {
     
-    const [title, setTitle] = useState("");
-    const [description, setDescription] = useState("");
-    const [shared, setShared] = useState(false);
+    const [title, setTitle] = useState(quest?.title ?? "");
+    const [description, setDescription] = useState(quest?.description ?? "");
+    const [shared, setShared] = useState(quest?.shared ?? false);
     
     
     const [titleError, setTitleError] = useState("");
     
     const [member, setMember] = useState("");
-    let [members, setMembers] = useState<string[]>([username]);
+    let [members, setMembers] = useState<string[]>(quest?.members ?? [username]);
     const [memberError, setMemberError] = useState("");
 
     async function addMember(e: React.MouseEvent<HTMLButtonElement>) {
@@ -41,6 +44,15 @@ export function TaskEditor({ setTaskEditor, username, fetchTasks }: TaskEditorPr
         
     }
 
+    function closeEditor() {
+        setTitle("");
+        setDescription("");
+        setMembers([]);
+        setShared(false);
+        setQuest(null);
+        setTaskEditor(false);
+    }
+
     async function handleSubmit(e: React.SyntheticEvent) {
         e.preventDefault();
 
@@ -52,32 +64,38 @@ export function TaskEditor({ setTaskEditor, username, fetchTasks }: TaskEditorPr
             setTitleError("");
             setMemberError("");
             
-            await createTask({ action: "create", username, members, title, description, shared });
+            if (!quest) {
+                await createTask({ action: "create", username: username, members: members, title: title, description: description, shared: shared });
+            } else if (quest) {
+                await taskAction({action: "edit", username: username, idQuest: quest.idQuest, 
+                    title: title, description: description, members: members, shared: shared});
+            }
+            
             fetchTasks();
-            setTaskEditor(false);
+            closeEditor();
         }
     }
 
     return (
         <div>
-            <div className="settings-close-back-box" onClick={() => setTaskEditor(false)}></div>
+            <div className="settings-close-back-box" onClick={() => {setTaskEditor(false); closeEditor();}}></div>
 
             <form onSubmit={handleSubmit}  className="task-editor-container">
                 <div className="editor-box">
                     <h2 className="editor-title">Title</h2>
-                    <input type="text"  className="editor-input" placeholder="Task title" onChange={(e) => setTitle(e.target.value)}/>
+                    <input type="text" className="editor-input" placeholder="Task title" value={title} onChange={(e) => setTitle(e.target.value)}/>
                     <p className="editor-error-text">{titleError}</p>
                 </div>
 
                 <div className="editor-box">
                     <h2 className="editor-title">Description</h2>
-                    <textarea className="editor-input" placeholder="Task description" onChange={(e) => setDescription(e.target.value)}/>
+                    <textarea className="editor-input" placeholder="Task description" value={description} onChange={(e) => setDescription(e.target.value)}/>
                 </div>
                 
                 <div className="editor-box tags-box">
                     {members.map((username, index) => (
                         <div key={index} className="member-tag">
-                            {username} <img className="member-tax-delete-icon" src={addIcon} onClick={() => setMembers(members.filter((_, i) => i !== index))} alt="Remove member" />
+                            {username} <img className="member-tag-delete-icon" src={addIcon} onClick={() => setMembers(members.filter((_, i) => i !== index))} alt="Remove member" />
                         </div>
                     ))}
                 </div>
@@ -86,7 +104,7 @@ export function TaskEditor({ setTaskEditor, username, fetchTasks }: TaskEditorPr
                     <div style={{"display": "flex", "justifyContent": "space-between"}}><h2 className="editor-title">Party members</h2>
                         <div style={{"display": "flex", "alignItems": "center"}}>
                             <h3 className="editor-title">Shared</h3>
-                            <input type="checkbox" onChange={() => setShared(prev => !prev)} style={{"marginLeft": "10px"}}/>
+                            <input type="checkbox" checked={shared} onChange={() => setShared(prev => !prev)} style={{"marginLeft": "10px"}}/>
                         </div>
                     </div>
                     <input type="text"  className="editor-input" placeholder="Member username" value={member} onChange={(e) => setMember(e.target.value.toLowerCase())}/>
@@ -95,7 +113,7 @@ export function TaskEditor({ setTaskEditor, username, fetchTasks }: TaskEditorPr
                 </div>
 
                 <div className="editor-box">
-                    <button type="submit" className="editor-button">Create</button>
+                    <button type="submit" className="editor-button">{!quest ? "Create" : "Submit" }</button>
                 </div>
             </form>
         </div>

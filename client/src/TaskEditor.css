@@ -86,7 +86,7 @@
     background-color: var(--text-title);
 }
 
-.member-tax-delete-icon {
+.member-tag-delete-icon {
     transform: rotate(45deg);
     height: 20px;
     width: 20px;

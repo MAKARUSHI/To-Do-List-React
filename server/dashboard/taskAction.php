@@ -1,5 +1,9 @@
 <?php
-// allowed origin for calling functions
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+// Allowed origin for calling functions
 $allowedOrigins = [
     "http://localhost:5173",
     "https://webtrac.duckdns.org",
@@ -10,7 +14,6 @@ $allowedOrigins = [
 if (isset($_SERVER["HTTP_ORIGIN"])) {
     $origin = $_SERVER["HTTP_ORIGIN"];
     
-    // If the incoming origin is in our allowed list
     if (in_array($origin, $allowedOrigins)) {
         header("Access-Control-Allow-Origin: " . $origin);
         header("Vary: Origin");
@@ -33,23 +36,22 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $rawInput = file_get_contents("php://input");
     $data = json_decode($rawInput, true);
 
-    $action = $data["action"];
-    $idUser = $data["idUser"];
-    $idQuest = $data["idQuest"];
+    $action = $data["action"] ?? "";
+    $username = $data["username"] ?? "";
+    $idQuest = $data["idQuest"] ?? null;
+    $shared = $data["shared"] ?? false;
 
     // Basic validation
-    if (empty($idUser)) {
+    if (empty($username)) {
         http_response_code(400);
-        echo json_encode(["error" => "No user ID"]);
+        echo json_encode(["status" => false, "error" => "No username provided"]);
         exit;
     }
 
     try {
-        $stmt = $pdo->prepare("SELECT shared FROM quests WHERE id_quest = ?");
-        $stmt->execute([$idQuest]);
-        $shared = $stmt->fetchColumn();
-
-        
+        $stmt = $pdo->prepare("SELECT id_user FROM users WHERE username = ?");
+        $stmt->execute([$username]);
+        $idUser = $stmt->fetchColumn();
             
         if ($action === "delete" || $action === "complete") {
             if ($action === "complete") {
@@ -60,7 +62,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     $stmt = $pdo->prepare("UPDATE users SET finished_tasks = finished_tasks + 1 FROM quest_assignees 
                     WHERE users.id_user = quest_assignees.id_user AND quest_assignees.id_quest = ?");
                     $stmt->execute([$idQuest]);
-                    
                 } else {
                     $stmt = $pdo->prepare("UPDATE quest_assignees SET is_completed = true WHERE id_quest = ? AND id_user = ?");
                     $stmt->execute([$idQuest, $idUser]);
@@ -86,17 +87,54 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $stmt = $pdo->prepare("DELETE FROM quests WHERE id_quest = ?");
                 $stmt->execute([$idQuest]);
             }
+
+            http_response_code(200);
+            echo json_encode(["status" => true, "message" => "Task action executed"]);
+            exit;
+        } else if ($action === "edit") {
+            $title = trim($data["title"] ?? "");
+            $description = trim($data["description"] ?? "");
+            $members = $data["members"] ?? null;
+            $shared = isset($data["shared"]) ? ($data["shared"] ? 1 : 0) : 0;
+
+            $encryptedTitle = encryptString($title, $encryptionKey);
+            $encryptedDescription = encryptString($description, $encryptionKey);
+
+            $stmt = $pdo->prepare("UPDATE quests SET title = ?, description = ?, shared = ? WHERE id_quest = ?");
+            $stmt->execute([$encryptedTitle, $encryptedDescription, $shared, $idQuest]);
+
+            if (is_array($members)) {
+                $stmt = $pdo->prepare("DELETE FROM quest_assignees WHERE id_quest = ?");
+                $stmt->execute([$idQuest]);
+
+                foreach ($members as $memberName) {
+                    $stmt = $pdo->prepare("SELECT id_user FROM users WHERE username = ?");
+                    $stmt->execute([trim($memberName)]);
+                    $assigneeUserId = $stmt->fetchColumn();
+
+                    if ($assigneeUserId) {
+                        $assignStmt = $pdo->prepare("INSERT INTO quest_assignees (id_quest, id_user) VALUES (?, ?) ON CONFLICT DO NOTHING");
+                        $assignStmt->execute([$idQuest, $assigneeUserId]);
+                    }
+                }
+            }
+
+            http_response_code(200);
+            echo json_encode(["status" => true, "message" => "Task updated"]);
+            exit;
+        } else {
+            http_response_code(400);
+            echo json_encode(["status" => false, "error" => "Invalid action"]);
+            exit;
         }
-        
-        
-        http_response_code(200);
-        echo json_encode(["message" => "Tasks action executed"]);
     } catch (\PDOException $e) {
         http_response_code(500);
-        echo json_encode(["error" => $e->getMessage()]);
+        echo json_encode(["status" => false, "error" => $e->getMessage()]);
+        exit;
     }
 } else {
     http_response_code(405);
-    echo json_encode(["error" => "Method not allowed"]);
+    echo json_encode(["status" => false, "error" => "Method not allowed"]);
+    exit;
 }
 ?>

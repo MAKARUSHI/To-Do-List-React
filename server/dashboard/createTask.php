@@ -64,15 +64,6 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
     }
 }
 
-function encryptString($data, $key) {
-    if (empty($data)) return $data;
-    $method = "AES-256-CBC";
-    $ivLength = openssl_cipher_iv_length($method);
-    $iv = openssl_random_pseudo_bytes($ivLength);
-    $encrypted = openssl_encrypt($data, $method, $key, 0, $iv);
-    return base64_encode($iv . $encrypted);
-}
-
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $rawInput = file_get_contents("php://input");
     $data = json_decode($rawInput, true);
