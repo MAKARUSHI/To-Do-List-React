@@ -4,7 +4,7 @@ import type {
     taskAction, taskActionResponse
 } from './Types';
 
-const API_BASE_URL = "http://webtrac.duckdns.org";
+const API_BASE_URL = "https://webtrac.duckdns.org";
 
 export async function registerUser(credentials: RegisterCredentials): Promise<RegisterCredentialsResponse> {
     const response = await fetch(`${API_BASE_URL}/server/auth/register.php`, {

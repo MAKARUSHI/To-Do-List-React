@@ -7,7 +7,6 @@ import { Menu } from "./Menu";
 import profileMale from "./assets/profile-male.png";
 import profileFemale from "./assets/profile-female.png";
 import profileOther from "./assets/profile-other.png";
-import settings from "./assets/settings.png";
 
 type DashboardProps = {
     user: {
@@ -62,9 +61,8 @@ export function Dashboard({ user, onUserLogout, setTheme, theme }: DashboardProp
       )}
 
         <div className="dashboard-top-box">
-          <img src={profileIcon} alt="User profile icon" className="dashboard-top-profile"/>
+          <img src={profileIcon} alt="User profile icon" className="dashboard-top-profile" onClick={toggleSettings}/>
           <h1 className="dashboard-top-text">Wellcome back, {user.first_name}</h1>
-          <img src={settings} alt="Settings icon" onClick={toggleSettings} className="dashboard-top-profile"/>
         </div>
 
         <Menu idUser={user.id_user} username={user.username} setShowWarning={setShowWarning} showWarning={showWarning}/>
