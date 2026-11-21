@@ -29,4 +29,18 @@ build.sh
 dbConfig.php
 task.php
 /assets/
-!**/assets/
+
+
+# Android build outputs, local SDK paths & signing keys
+*.apk
+*.aab
+*.ap_
+*.jks
+*.keystore
+android/local.properties
+android/.gradle/
+android/build/
+android/app/build/
+android/app/src/main/assets/public/
+android/app/src/main/assets/capacitor.config.json
+android/capacitor-cordova-android-plugins/

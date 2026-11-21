@@ -6,16 +6,18 @@ error_reporting(E_ALL);
 // Allowed origin for calling functions
 $allowedOrigins = [
     "http://localhost:5173",
+    "http://localhost",
+    "https://localhost",
+    "capacitor://localhost",
     "https://webtrac.duckdns.org",
     "http://192.168.1.18"
 ];
 
-// Check if the incoming request has an origin header
 if (isset($_SERVER["HTTP_ORIGIN"])) {
     $origin = $_SERVER["HTTP_ORIGIN"];
-    
-    if (in_array($origin, $allowedOrigins)) {
+    if (in_array($origin, $allowedOrigins, true)) {
         header("Access-Control-Allow-Origin: " . $origin);
+        header("Access-Control-Allow-Credentials: true");
         header("Vary: Origin");
     }
 }

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">webtrac</string>
+    <string name="title_activity_main">webtrac</string>
+    <string name="package_name">webtrac.duckdns.org</string>
+    <string name="custom_url_scheme">webtrac.duckdns.org</string>
+</resources>
